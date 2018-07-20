@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>c0</title>
+</head>
+
+<body>
+<canvas id="myCanvas" width="600" height="300">
+	你的浏览器不支持HTML5
+</canvas>
+
+<script type="text/javascript">
+	var canvas=document.getElementById("myCanvas");
+	var ctx=canvas.getContext("2d");
+	
+	//黑色区域作为画板
+	ctx.fillStyle="black";
+	ctx.fillRect(0,0,600,300);
+	
+	//按下标记
+	var on_off=false;
+	var oldx= -10;
+	var oldy= -10;
+	
+	//线的颜色
+	var linecolor="white";
+	//线宽
+	var linw=4;
+	//鼠标事件,当鼠标按下时会启用XX函数
+	canvas.addEventListener("mousemove",draw,true);
+	canvas.addEventListener("mousedown",down,false);
+	canvas.addEventListener("mouseup",up,false);
+
+	function down(event){
+		on_off=true;
+		oldx=event.pageX-10;
+		oldy=event.pageY-10;
+	}
+	function up(){
+		on_off=false;
+	}
+	function draw(event){
+		if(on_off==true){
+			var newx=event.pageX-10;
+			var newy=event.pageY-10;
+			ctx.beginPath();
+			ctx.moveTo(oldx,oldy);
+			ctx.lineTo(newx,newy);
+			ctx.strokeStyle=linecolor;
+			ctx.lineWidth=linw;
+			ctx.lineCap="round";
+			ctx.stroke();
+			
+			oldx=newx;
+			oldy=newy;
+		};
+	};
+	
+</script>
+
+</body>
+</html>
+
