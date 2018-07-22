@@ -1,17 +1,206 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8" />
-<title>c0</title>
+<meta charset="UTF-8">
+<title>test0</title>
+<style>
+	#cas{
+		display: block;
+		border: 1px solid;
+		margin: auto;
+	}	
+</style>
 </head>
 
 <body>
-<canvas id="myCanvas" width="600" height="300">
-	你的浏览器不支持HTML5
-</canvas><br>
+<div>
+	<canvas id="cas" width="1000" height="500">浏览器不支持canvas</canvas>
+	<div style="width:150px;margin:10px auto">
+		<input type="text" name="" id="name" style="width:80px;" value="google">
+		<button id="startBtn">开始</button>
+	</div>
+</div>
 
 <script type="text/javascript">
+//	window.onload=function(){
+		var cas=document.getElementById("cas");
+		var ctx=cas.getContext("2d");
+
+		var focallength=250;
 	
+
+		//计算帧速率
+		var lastTime;
+		
+		ctx.clearRect(0,0,cas.width,cas.height);
+		var derection = true;//是否继续下一半    
+		var pause = false;   //是否完成
+//        initAnimate();
+
+		function initAnimate(){
+			var dots=getimgData(document.getElementById("name").value);
+			
+			dots.forEach(function(){
+				this.paint();
+			});
+			
+			dots.forEach(function(){
+				this.x = Math.random()*cas.width;
+				this.y = Math.random()*cas.height;
+				this.z = Math.random()*focallength*2 - focallength;
+
+				this.tx = Math.random()*cas.width;
+				this.ty = Math.random()*cas.height;
+				this.tz = Math.random()*focallength*2 - focallength;
+				this.paint();
+			});
+			animate();
+		}
+	
+		function animate(){
+			animateRunning = true;
+			var thisTime = +new Date();
+			ctx.clearRect(0,0,cas.width , cas.height);
+			dots.forEach(function(){
+				var dot = this;
+				if(derection){
+					if (Math.abs(dot.dx - dot.x) < 0.1 && Math.abs(dot.dy - dot.y) < 0.1 && Math.abs(dot.dz - dot.z)<0.1) {
+						dot.x = dot.dx;
+						dot.y = dot.dy;
+						dot.z = dot.dz;
+						if(thisTime - lastTime > 300)
+							derection = false;
+					} else {
+						dot.x = dot.x + (dot.dx - dot.x) * 0.1;
+						dot.y = dot.y + (dot.dy - dot.y) * 0.1;
+						dot.z = dot.z + (dot.dz - dot.z) * 0.1;
+						lastTime = +new Date()//+相当于.valueOf();
+					}
+				}
+				else {
+					if (Math.abs(dot.tx - dot.x) < 0.1 && Math.abs(dot.ty - dot.y) < 0.1 && Math.abs(dot.tz - dot.z)<0.1) {
+						dot.x = dot.tx;
+						dot.y = dot.ty;
+						dot.z = dot.tz;
+						pause = true;
+					} else {
+						dot.x = dot.x + (dot.tx - dot.x) * 0.1;
+						dot.y = dot.y + (dot.ty - dot.y) * 0.1;
+						dot.z = dot.z + (dot.tz - dot.z) * 0.1;
+						pause = false;
+					}
+				}
+				dot.paint();
+			});
+			if(!pause) {
+				if("requestAnimationFrame" in window){
+					requestAnimationFrame(animate);
+				}
+				else if("webkitRequestAnimationFrame" in window){
+					webkitRequestAnimationFrame(animate);
+				}
+				else if("msRequestAnimationFrame" in window){
+					msRequestAnimationFrame(animate);
+				}
+				else if("mozRequestAnimationFrame" in window){
+					mozRequestAnimationFrame(animate);
+				}
+			}
+		}
+	
+		document.getElementById('startBtn').onclick = function(){
+			ctx.clearRect(0,0,cas.width,cas.height);
+//			var dots=getimgData(document.getElementById("name").value);
+//			
+//			//测试用
+//			dots.forEach(function(){
+//				this.paint();
+//			});
+			
+			var derection = true;   
+			var pause = false;
+			initAnimate();
+        }
+//	}
+
+	//foreach函数
+	Array.prototype.forEach = function(callback){
+		for(var i=0;i<this.length;i++){
+			callback.call(this[i]);
+		}
+    }
+	
+	//粒子化文字
+	function getimgData(text){
+		drawText(text);
+		var imgData=ctx.getImageData(0,0,cas.width,cas.height);
+//		ctx.clearRect(0,0,cas.width,cas.height);
+		
+		//测试用的
+//		ctx.fillText(text,cas.width/2,cas.height/2+100);
+		
+		var dots=[];
+		for(var x=0;x<imgData.width;x+=6){
+			for(var y=0;y<imgData.height;y+=6){
+				var i=(y*imgData.width+x)*4;
+				if(imgData.data[i]>=128){
+					var dot=new Dot(x-3,y-3,0,3);//这里可以调小圆半径
+					
+					//  测试
+//					dots.forEach(function(){
+//						this.paint();
+//					});
+					
+					dots.push(dot);
+				}
+			}
+		}	
+		return dots;
+	}
+
+	//写文字
+	function drawText(text){
+		ctx.save();
+		ctx.beginPath();
+		ctx.font="200px 微软雅黑 bold";
+		ctx.fillStyle = "rgba(168,168,168,1)";
+		ctx.textAlign="center";
+		ctx.textBaseline = "middle";
+		ctx.fillText(text,cas.width/2,cas.height/2);
+		ctx.closePath();
+		ctx.restore();
+	}
+	
+	//点类
+	var Dot=function(centerX,centerY,centerZ,radius){
+		this.dx=centerX;  //保存原来的位置
+		this.dy=centerY;
+		this.dz=centerZ;
+		this.tx=0;        //保存粒子聚合后又飞散开的位置
+		this.ty=0;
+		this.tz=0;
+		this.x=centerX;
+		this.y=centerY;
+		this.z=centerZ;
+		this.radius=radius;
+	}
+	Dot.prototype={
+		paint:function(){
+			ctx.save();
+			ctx.beginPath();
+			
+//			ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+//			ctx.fillStyle="rgba(50,50,50,1)";
+//			ctx.fill();
+			var scale = focallength/(focallength + this.z);
+			ctx.arc(cas.width/2 + (this.x-cas.width/2)*scale , cas.height/2 + (this.y-cas.height/2) * scale, this.radius*scale , 0 , 2*Math.PI);
+			ctx.fillStyle = "rgba(50,50,50,"+ scale +")";
+			ctx.fill();
+			
+			ctx.closePath();
+			ctx.restore();
+		}
+	}
 	
 </script>
 
