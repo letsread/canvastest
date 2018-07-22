@@ -23,26 +23,25 @@
 
 <script type="text/javascript">
 	window.onload=function(){
-		var cas=document.getElementById("cas");
-		var ctx=cas.getContext("2d");
+		cas=document.getElementById("cas");
+		ctx=cas.getContext("2d");
 
-		var focallength=250;
+		focallength=250;
 	
 
 		//计算帧速率
 		var lastTime;
 		
 		ctx.clearRect(0,0,cas.width,cas.height);
+		var dots=getimgData(document.getElementById("name").value);
 		var derection = true;//是否继续下一半    
 		var pause = false;   //是否完成
         initAnimate();
 
-		function initAnimate(){
-			var dots=getimgData(document.getElementById("name").value);
-			
-			dots.forEach(function(){
-				this.paint();
-			});
+		function initAnimate(){			
+//			dots.forEach(function(){
+//				this.paint();
+//			});
 			
 			dots.forEach(function(){
 				this.x = Math.random()*cas.width;
@@ -74,7 +73,7 @@
 						dot.x = dot.x + (dot.dx - dot.x) * 0.1;
 						dot.y = dot.y + (dot.dy - dot.y) * 0.1;
 						dot.z = dot.z + (dot.dz - dot.z) * 0.1;
-						lastTime = +new Date()//+相当于.valueOf();
+						lastTime = +new Date();//+相当于.valueOf();
 					}
 				}
 				else {
@@ -109,16 +108,17 @@
 		}
 	
 		document.getElementById('startBtn').onclick = function(){
+//			if (!pause) return;
 			ctx.clearRect(0,0,cas.width,cas.height);
-//			var dots=getimgData(document.getElementById("name").value);
+			dots=getimgData(document.getElementById("name").value);
 //			
 //			//测试用
 //			dots.forEach(function(){
 //				this.paint();
 //			});
 			
-			var derection = true;   
-			var pause = false;
+			derection = true;   
+			pause = false;
 			initAnimate();
         }
 	}
